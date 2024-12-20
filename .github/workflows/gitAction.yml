@@ -3,7 +3,7 @@ name: tests
 on:
   push:
     branches:
-      - master
+      - master # 注意：如果你使用的是main作为默认分支，请相应地更改
   pull_request:
     types: [opened, synchronize, reopened]
 
@@ -29,8 +29,7 @@ jobs:
         run: mvn -B test --file pom.xml
       - name: Automatically merge PR if tests pass
         if: github.event_name == 'pull_request' && github.event.pull_request.merged == false
-        uses: peter-evans/gh-action-merge-pull-request@v1
+        uses: peter-evans/auto-merge@v1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           pull-request-number: ${{ github.event.number }}
-          merge-method: merge
