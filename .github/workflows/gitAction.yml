@@ -1,20 +1,41 @@
 name: tests
-on: push
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    types: [opened, synchronize, reopened]
+
 jobs:
   run_tests:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
       - name: Set up JDK17
         uses: actions/setup-java@v1
         with:
           java-version: '17'
-      - name: Cache Mavenpackages
+      - name: Cache Maven packages
         uses: actions/cache@v2
         with:
           path: ~/.m2
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
-      - name: Runtests with Maven
+      - name: Run tests with Maven
         run: mvn -B test --file pom.xml
+      - name: Automatically merge PR if tests pass
+        if: github.event_name == 'pull_request' && github.event.pull_request.merged == false
+        run: |
+          git config --global user.email "action@github.com"
+          git config --global user.name "GitHub Action"
+          TOKEN=${{ secrets.GITHUB_TOKEN }}
+          git remote set-url origin https://x-access-token:${TOKEN}@github.com/${{ github.repository }}.git
+          git checkout ${{ github.event.pull_request.head.ref }}
+          git merge ${{ github.event.pull_request.base.ref }} --no-edit
+          git push origin ${{ github.event.pull_request.head.ref }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
