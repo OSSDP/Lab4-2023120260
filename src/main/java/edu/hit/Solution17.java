@@ -51,4 +51,8 @@ public class Solution17 {
         }
         return ans;
     }
+
+    public String test(){
+        return "hello world";
+    }
 }

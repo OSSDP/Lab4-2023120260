@@ -115,4 +115,10 @@ public class L2023120260_17_Test {
         List<String> actualOutput = solution.findRepeatedDnaSequences(input);
         Assert.assertEquals(expectedOutput, actualOutput);
     }
+
+    @Test
+    public void testHelloWorld(){
+        Solution17 solution = new Solution17();
+        Assert.assertEquals("hello world",solution.test());
+    }
 }
